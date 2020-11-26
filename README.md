@@ -1,3 +1,3 @@
 # Proyecto_riesgo
-prueba2vlfm v
+prueba2vlfm vj
 algo
