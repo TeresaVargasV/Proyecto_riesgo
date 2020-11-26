@@ -109,7 +109,7 @@ end
 @constraint(model, pb_p1 == pb_d_p1-pb_c_p1)
 
 #Restricciones balance de energia bateria
-@constraint(model, eb_final_p1 == e_in - pb_d_p1/eta_di +pb_c_p1*eta_carga)
+@constraint(model, eb_final_p1 == e_in - pb_d_p1/eta_di +pb_c_p1*eta_ch)
 @constraint(model, e_in >=  pb_d_p1/eta_di - pb_c_p1*eta_ch)
 
 #Restricciones etapa 2-------------------------------------------------------------
@@ -139,7 +139,7 @@ end
 
 for n in nod_p2
     #Restricciones balance de energia bateria
-    @constraint(model, eb_final_p2[n] == eb_final_p1 - pb_d_p2[n]/eta_di +pb_c_p2[n]*eta_carga)
+    @constraint(model, eb_final_p2[n] == eb_final_p1 - pb_d_p2[n]/eta_di +pb_c_p2[n]*eta_ch)
     @constraint(model, eb_final_p1 >=  pb_d_p2[n]/eta_di - pb_c_p2[n]*eta_ch)
 end
 
@@ -170,7 +170,7 @@ end
 
 for n in nod_p3
     #Restricciones balance de energia bateria
-    @constraint(model, eb_final_p3[n] == eb_final_p2[padre_t3[n]] - pb_d_p3[n]/eta_di +pb_c_p3[n]*eta_carga)
+    @constraint(model, eb_final_p3[n] == eb_final_p2[padre_t3[n]] - pb_d_p3[n]/eta_di +pb_c_p3[n]*eta_ch)
     @constraint(model, eb_final_p2[padre_t3[n]] >=  pb_d_p3[n]/eta_di - pb_c_p3[n]*eta_ch)
 end
 
