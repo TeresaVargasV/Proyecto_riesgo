@@ -1,5 +1,5 @@
 #Problema con almacenamiento multiperiodo deterministico
-#Minimiza  costo de operacion, copia esclavobatsinu
+#Minimiza  costo de operacion
 #FUNCIONA
 
 using JuMP
