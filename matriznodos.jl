@@ -192,16 +192,6 @@ ll_sol=value.(ll)
 #MOSTRAR SOLUCIONES
 println("Costo total: ", costo)
 println(" ")
-#for n in nodos
-#    for g in generadores
-#        println("Despacho Gs ",g," nodo ",n," :", pg_sol[n,g])
-#    end
-#    println("Carga bateria nodo ",n," :", pb_c_sol[n])
-#    println("Descarga bateria nodo ",n," :", pb_d_sol[n])
-#    println("Estado de carga al final del nodo ",n," :", eb_sol[n])
-#    println("Perdida de carga nodo ",n," :", ll_sol[n])
-#    println(" ")
-#end
 
 resultados = DataFrame(Gs1 = pg_sol[:,1],
                Gs2 = pg_sol[:,2],
