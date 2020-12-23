@@ -142,7 +142,7 @@ for i = iteraciones
             #println(muestreo)
             #println(I_realizaciones[muestreo[k],:])
             #Resuelve el subproblema periodos posteriores muestreo 1---------------------------
-            coef_pos, pendiente, eb_final_sol, alpha_sol,pg_per_sol,pb_per_sol=esclavoSDDPv3(I_realizaciones[muestreo[k],:], eb_final_p[p-1,1,i], demanda[p],coef_cortes[p,:,:], pendiente_cortes[p,:,:], eb_final_p[p,:,:],num_iteraciones,num_muestreo)
+            coef_pos, pendiente, eb_final_sol, alpha_sol,pg_per_sol,pb_per_sol=esclavoSDDPv3(I_realizaciones[muestreo[k],:], eb_final_p[p-1,k,i], demanda[p],coef_cortes[p,:,:], pendiente_cortes[p,:,:], eb_final_p[p,:,:],num_iteraciones,num_muestreo)
             #Guardar valor de la variable con acople temporal
             eb_final_p[p,k,i]=eb_final_sol
             costo_presente_aux[p,k,i]=coef_pos-alpha_sol

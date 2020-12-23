@@ -101,7 +101,7 @@ function esclavoSDDPv3(I_escenario, e_anterior, demanda, coef_cortes, pendiente_
     pg_sol=value.(pg)
     pb_sol=value.(pb)
     alpha_sol=value.(alpha)
-    #println("test, ",pg_sol)
+    println("test, ",value.(ll))
 
     # devolver lo necesario para los cortes
     return coef_pos, pendiente, eb_final_sol, alpha_sol,pg_sol,pb_sol
