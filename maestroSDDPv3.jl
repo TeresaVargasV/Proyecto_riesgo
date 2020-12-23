@@ -133,7 +133,6 @@ for i = iteraciones
 
     #Etapa forward
     for p in 2:num_periodos
-
         for i = 1:length(muestreo)
             global muestreo[i] = sample(items, Weights(prob))
         end
