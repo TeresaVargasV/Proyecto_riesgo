@@ -7,22 +7,22 @@ using CSV
 using DataFrames
 
 #DEFINIR PERIODOS Y ESTADOS----------------------------------------
-num_periodos=3 #perido totales
+num_periodos=8 #perido totales
 periodos = 1:num_periodos
 
 #DATOS DEMANDA----------------------------------------------------------
-demanda = [80 20 80] # Demanda conocida
+demanda = [80 20 60 50 20 150 200 180] # Demanda conocida
 
 #DATOS CENTRALES TERMICAS------------------------------------------------
 #Numero de centrales generadores
-num_generadores=2
+num_generadores=5
 generadores=1:num_generadores
 #Costo operacion
-cg_vr=[40 100]
+cg_vr=[40 100 60 55 120]
 
 #Limites tecnicos
-pg_max=[50 50]
-pg_min=[0 0]
+pg_max=[50 50 50 50 50]
+pg_min=[0 0 0 0 0]
 
 #DATOS BATERIA-----------------------------------------------------------------
 #Limites tecnicos
@@ -93,7 +93,7 @@ function esclavoSDDPm2(I_escenario, e_anterior, demanda, coef_cortes, pendiente_
     #Funcion objetivo minimo costo de operacion
     @objective(model, Min, sum(cg_vr[g]*pg[g] for g in generadores)+pb_d*cb_di+pb_c*cb_ch+ ll*VoLL+ alpha)
     optimize!(model)
-
+    #println("iteracion del esclavo", i)
     #Obtener soluciones para los cortes
     coef_pos = objective_value(model)
     pendiente = dual.(fijar)
@@ -101,6 +101,7 @@ function esclavoSDDPm2(I_escenario, e_anterior, demanda, coef_cortes, pendiente_
     pg_sol=value.(pg)
     pb_sol=value.(pb)
     alpha_sol=value.(alpha)
+    #println("test, ",pg_sol)
 
     # devolver lo necesario para los cortes
     return coef_pos, pendiente, eb_final_sol, alpha_sol,pg_sol,pb_sol
