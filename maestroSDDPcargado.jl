@@ -239,8 +239,8 @@ for e in 1:9
     for p in 2:num_periodos
         if Resultados_ll[e,p]>epsilon
             rama=Esc_Resueltos[e,:]
-            p=prob[rama[1]]*prob[rama[2]]*prob[rama[3]]*1
-            global LOLE=LOLE+p
+            w=prob[rama[1]]*prob[rama[2]]*prob[rama[3]]*1
+            global LOLE=LOLE+w
             break
         end
     end
