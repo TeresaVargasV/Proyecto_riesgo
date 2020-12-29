@@ -68,7 +68,8 @@ Resultados_pb=zeros(9,num_periodos)
 Resultados_eb=zeros(9,num_periodos)
 Resultados_ll=zeros(9,num_periodos)
 
-#e=9
+epsilon=0.0001
+LOLE=0
 for e in 1:9
         rama= Esc_Resueltos[e,:]
         for p in 1:num_periodos
@@ -80,5 +81,10 @@ for e in 1:9
                 Resultados_pb[e,p]=pb_sol[p]
                 Resultados_eb[e,p]=eb_final_sol[p]
                 Resultados_ll[e,p]=ll_sol[p]
+                if Resultados_ll[e,p]>epsilon
+                    w=prob[rama[1]]*prob[rama[2]]*prob[rama[3]]*1
+                    global LOLE=LOLE+w
+                    break
+                end
         end
 end
