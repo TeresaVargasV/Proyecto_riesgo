@@ -9,7 +9,7 @@ using Random
 using StatsBase
 
 # Utilizar funciones del archivo "esclavoSDDP.jl"
-include("esclavoSDDPm2.jl")
+include("esclavoSDDPcargado.jl")
 
 #DEFINIR PERIODOS Y ESTADOS----------------------------------------
 num_periodos=3 #perido totales
@@ -140,14 +140,14 @@ for i = iteraciones
             global muestreo[i] = sample(items, Weights(prob))
         end
         #Resuelve el subproblema periodos posteriores muestreo 1---------------------------
-        coef_pos, pendiente, eb_final_sol, alpha_sol,pg_per_sol,pb_per_sol,ll_sol=esclavoSDDPm2(I_realizaciones[muestreo[1],:], eb_final_p[p-1,1,i], demanda[p],coef_cortes[p,:,:], pendiente_cortes[p,:,:], eb_final_p[p,:,:],num_iteraciones,num_muestreo)
+        coef_pos, pendiente, eb_final_sol, alpha_sol,pg_per_sol,pb_per_sol,ll_sol=esclavoSDDPcargado(I_realizaciones[muestreo[1],:], eb_final_p[p-1,1,i], demanda[p],coef_cortes[p,:,:], pendiente_cortes[p,:,:], eb_final_p[p,:,:],num_iteraciones,num_muestreo)
 
         #Guardar valor de la variable con acople temporal
         eb_final_p[p,1,i]=eb_final_sol
         costo_presente_aux[p,1,i]=coef_pos-alpha_sol
 
         #Resuelve el subproblema periodos posteriores muestreo 2---------------------------
-        coef_pos, pendiente, eb_final_sol, alpha_sol,pg_per_sol,pb_per_sol,ll_sol=esclavoSDDPm2(I_realizaciones[muestreo[2],:], eb_final_p[p-1,2,i], demanda[p],coef_cortes[p,:,:], pendiente_cortes[p,:,:], eb_final_p[p,:,:],num_iteraciones,num_muestreo)
+        coef_pos, pendiente, eb_final_sol, alpha_sol,pg_per_sol,pb_per_sol,ll_sol=esclavoSDDPcargado(I_realizaciones[muestreo[2],:], eb_final_p[p-1,2,i], demanda[p],coef_cortes[p,:,:], pendiente_cortes[p,:,:], eb_final_p[p,:,:],num_iteraciones,num_muestreo)
 
         #Guardar valor de la variable con acople temporal
         eb_final_p[p,2,i]=eb_final_sol
@@ -167,7 +167,7 @@ for i = iteraciones
         for m in 1:num_muestreo
             for e in realizaciones
                 #Resuelve el subproblema periodos posteriores---------------------------
-                coef_pos, pendiente, eb_final_sol, alpha_sol,pg_per_sol,pb_per_sol,ll_sol=esclavoSDDPm2(I_realizaciones[e,:,:], eb_final_p[p-1,m,i], demanda[p],coef_cortes[p,:,:], pendiente_cortes[p,:,:], eb_final_p[p,:,:],num_iteraciones,num_muestreo)
+                coef_pos, pendiente, eb_final_sol, alpha_sol,pg_per_sol,pb_per_sol,ll_sol=esclavoSDDPcargado(I_realizaciones[e,:,:], eb_final_p[p-1,m,i], demanda[p],coef_cortes[p,:,:], pendiente_cortes[p,:,:], eb_final_p[p,:,:],num_iteraciones,num_muestreo)
                 pendiente_corte_aux[e,m,p-1]=pendiente
                 coef_corte_aux[e,m,p-1]=coef_pos
             end
