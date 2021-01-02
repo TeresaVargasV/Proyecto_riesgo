@@ -6,6 +6,7 @@ using GLPK
 using CSV
 using DataFrames
 using Random
+using StatsBase
 
 # Utilizar funciones del archivo "esclavoSDDP.jl"
 include("esclavoSDDPm2.jl")
