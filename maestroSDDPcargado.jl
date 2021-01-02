@@ -1,6 +1,6 @@
 #Problema con almacenamiento multiperiodo estocastico
 #Minimiza  costo de operacion
-#Resolución SDDP 
+#Resolución SDDP cargado
 #Modelo de entrega 1 pero con muestreo mayor cargado segun probabilidades
 using JuMP
 using GLPK
