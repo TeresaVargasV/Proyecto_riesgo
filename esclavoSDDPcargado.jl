@@ -1,7 +1,7 @@
 #Problema con almacenamiento multiperiodoestocastico con SDDP
 #Minimiza  costo de operacion
 #Problema esclavo  de maestroSDDPcargado.jl
-#Modelo de entrega 1 pero con muestreo mayor cargado segun probabilidades
+#Modelo de entrega 1 pero con muestreo mayor y cargado segun probabilidades
 
 using JuMP
 using GLPK
