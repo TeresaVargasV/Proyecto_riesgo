@@ -71,6 +71,7 @@ Resultados_pb=zeros(num_montecarlo,num_periodos)
 Resultados_eb=zeros(num_montecarlo,num_periodos)
 Resultados_ll=zeros(num_montecarlo,num_periodos)
 
+#e=9
 epsilon=0.0001
 LOLE=0
 for e in 1:num_montecarlo
@@ -94,13 +95,19 @@ end
 
 
 println("LOLE: ", LOLE/num_montecarlo)
-#filtrar resultados iguales?
+#filtrar resultados iguales
 
 casos = convert(DataFrame,estado)
 
+
+#guardar resultados
 resultados_ll= DataFrame([[Resultados_ll[:,i]...] for i in 1:size(Resultados_ll,2)], Symbol.(:Periodo, 1:num_periodos))
 CSV.write("ResultadosLL.csv", resultados_ll)
 
 resultados_pb= DataFrame([[Resultados_pb[:,i]...] for i in 1:size(Resultados_pb,2)], Symbol.(:Periodo, 1:num_periodos))
 CSV.write("ResultadosPB.csv", resultados_pb)
 
+resultados_pg1= DataFrame([[Resultados_pg[:,i,1]...] for i in 1:size(Resultados_pg,2)], Symbol.(:Periodo, 1:num_periodos))
+CSV.write("ResultadosPG1.csv", resultados_pg1)
+resultados_pg2= DataFrame([[Resultados_pg[:,i,2]...] for i in 1:size(Resultados_pg,2)], Symbol.(:Periodo, 1:num_periodos))
+CSV.write("ResultadosPG2.csv", resultados_pg2)
