@@ -1,6 +1,7 @@
 #Problema con almacenamiento multiperiodo estocastico
 #Minimiza  costo de operacion
-#resolución SDDP,masiteraciones
+#Resolución SDDP 
+#Modelo de entrega 1 pero con muestreo mayor cargado segun probabilidades
 using JuMP
 using GLPK
 using CSV
@@ -128,14 +129,6 @@ for i = iteraciones
 
     #Etapa forward
     for p in 2:num_periodos
-        #global ms1=1
-        #global ms2=1
-        #while ms1==ms2
-        #    global ms1=rand((1,2,3))
-        #    global ms2=rand((1,2,3))
-        #end
-        #muestreo[1]=ms1
-        #muestreo[2]=ms2
         for i = 1:length(muestreo)
             global muestreo[i] = sample(items, Weights(prob))
         end
@@ -154,7 +147,7 @@ for i = iteraciones
         costo_presente_aux[p,2,i]=coef_pos-alpha_sol
     end
 
-    #Ver convergencia
+    #Ver convergencia segun varianza
     z_max[i]=costo_presente_aux[1,1,i]+ (sum(costo_presente_aux[p,e,i] for p in 2:num_periodos, e in 1:num_muestreo))*1/num_muestreo
     global var_z=sqrt(1/(num_muestreo^2)*sum((z_max[i]-sum(costo_presente_aux[p,m,i] for p in 1:num_periodos))^2 for m in 1:num_muestreo))
     if z_max[i]-2*var_z< z_min[i] && z_max[i]+2*var_z> z_min[i]
@@ -241,7 +234,7 @@ for e in 1:9
         if Resultados_ll[e,p]>epsilon
             rama=Esc_Resueltos[e,:]
             w=prob[rama[1]]*prob[rama[2]]*prob[rama[3]]*1
-            global LOLE=LOLE+w
+            global LOLE=LOLE+w #mal sacado
             break
         end
     end
