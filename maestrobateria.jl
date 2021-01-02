@@ -1,4 +1,4 @@
-#Problema con almacenamiento multiperiodo deterministico
+#Ejemplo:Problema con almacenamiento multiperiodo deterministico
 #Minimiza  costo de operacion
 #FUNCIONAA, BATERIA SE CARGA Y DESCARGA EN DISTINTOS PERIODOS
 
