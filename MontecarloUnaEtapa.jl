@@ -12,35 +12,37 @@ using StatsBase
 include("UnaEtapa.jl")
 
 #DEFINIR PERIODOS Y ESTADOS----------------------------------------
-num_periodos=3 #perido totales
+num_periodos=24 #perido totales
 periodos = 1:num_periodos
-num_real=3
+num_real=6
 realizaciones=1:num_real
 
 #DATOS DEMANDA----------------------------------------------------------
-demanda = [80 20 80] # Demanda conocida
-
+#demanda = [80 20 80] # Demanda conocida
+demanda = [480 530 580 610 680 710 870 1040 1130 1040 1030 940 1050 1250 1310 1320 1220 1080 1060 1040 930 900 850 800] #Demanda Conocida 
 #DATOS CENTRALES TERMICAS------------------------------------------------
 #Numero de centrales generadores
-num_generadores=2
+num_generadores=5
 generadores=1:num_generadores
 #Costo operacion
-cg_vr=[40 100]
+#cg_vr=[40 100]
+cg_vr=[5 12 25 15 20]
 
 #Limites tecnicos
-pg_max=[50 50]
-pg_min=[0 0]
-I_realizaciones=[1 1;1 0; 0 1]
+pg_max=[400 350 300 250 200]
+pg_min=[0 0 0 0 0]
+#I_realizaciones=[1 1;1 0; 0 1]
+I_realizaciones=[1 1 1 1 1; 0 1 1 1 1;1 0 1 1 1; 1 1 0 1 1; 1 1 1 0 1; 1 1 1 1 0]
 #prob=[1-5/8760*2;5/8760;5/8760]
-prob=[0.8;0.1;0.1]
+prob=[0.5;0.1;0.1;0.1;0.1;0.1]
 
 #DATOS BATERIA-----------------------------------------------------------------
 #Limites tecnicos
-pb_max=50
+pb_max=150
 pb_min=0
-e_max=50
+e_max=150
 e_min=0
-e_in=50 #estado de carga inicial
+e_in=150 #estado de carga inicial
 
 #Eficiencia
 eta_ch=0.9 #carga
@@ -54,7 +56,7 @@ cb_di=5 #descarga
 VoLL=1200
 
 #Muestreo aleatorio
-items = [1, 2, 3]
+items = [1, 2, 3, 4, 5, 6]
 num_montecarlo=100
 estado=zeros(Int64,num_montecarlo,num_periodos)
 for j in 1:num_montecarlo

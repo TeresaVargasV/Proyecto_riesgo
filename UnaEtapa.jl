@@ -9,20 +9,29 @@ using DataFrames
 
 #DATOS CENTRALES TERMICAS------------------------------------------------
 #Numero de centrales generadores
-num_generadores=2
+#num_generadores=2
+num_generadores=5
 generadores=1:num_generadores
 #Costo operacion
-cg_vr=[40 100]
+#cg_vr=[40 100]
+cg_vr=[5 12 25 15 20]
+
 
 #Limites tecnicos
-pg_max=[50 50]
-pg_min=[0 0]
+#pg_max=[50 50]
+#pg_min=[0 0]
+pg_max=[400 350 300 250 200]
+pg_min=[0 0 0 0 0]
 
 #DATOS BATERIA-----------------------------------------------------------------
 #Limites tecnicos
-pb_max=50
+#pb_max=50
+#pb_min=0
+#e_max=50
+#e_min=0
+pb_max=150
 pb_min=0
-e_max=50
+e_max=150
 e_min=0
 #e_in=50 #estado de carga inicial
 
