@@ -1,6 +1,6 @@
 #Problema con almacenamiento multiperiodo estocastico
 #Minimiza  costo de operacion
-#resolución directa
+#resolución directa 
 using JuMP
 using GLPK
 using CSV

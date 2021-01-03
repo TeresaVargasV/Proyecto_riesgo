@@ -1,4 +1,4 @@
-#Problema con almacenamiento multiperiodo estocastico
+#Problema con almacenamiento multiperiodo estocastico 
 #Minimiza  costo de operacion
 #resolución SDDP,mas iteraciones
 using JuMP

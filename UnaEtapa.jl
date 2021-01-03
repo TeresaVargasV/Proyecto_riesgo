@@ -36,7 +36,7 @@ e_min=0
 #e_in=50 #estado de carga inicial
 
 #Eficiencia
-eta_ch=0.9 #carga
+eta_ch=0.9 #carga 
 eta_di=1 #descarga
 
 #Costo por carga y descarga
