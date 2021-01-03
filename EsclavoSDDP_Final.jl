@@ -101,7 +101,8 @@ function EsclavoSDDP_Final(I_escenario, e_anterior, demanda, coef_cortes, pendie
     pg_sol=value.(pg)
     pb_sol=value.(pb)
     alpha_sol=value.(alpha)
+    ll_sol=value.(ll)
 
     # devolver lo necesario para los cortes
-    return coef_pos, pendiente, eb_final_sol, alpha_sol,pg_sol,pb_sol
+    return coef_pos, pendiente, eb_final_sol, alpha_sol,pg_sol, pb_sol, ll_sol
 end
