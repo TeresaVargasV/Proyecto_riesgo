@@ -1,6 +1,6 @@
 #Problema con almacenamiento multiperiodo deterministico
 #Minimiza  costo de operacion
-#FUNCIONA
+#Ejemplo bateria, FUNCIONA
 
 using JuMP
 using GLPK

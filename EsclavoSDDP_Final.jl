@@ -1,6 +1,6 @@
 #Problema con almacenamiento multiperiodoestocastico con SDDP
 #Minimiza  costo de operacion
-#Problema esclavo con un muestreo de 2
+#Problema esclavo con un muestreo de 
 using JuMP
 using GLPK
 using CSV

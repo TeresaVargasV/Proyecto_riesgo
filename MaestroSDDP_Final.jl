@@ -1,6 +1,6 @@
 #Problema con almacenamiento multiperiodo estocastico
 #Minimiza  costo de operacion
-#resolución SDDP,masiteraciones
+#resolución SDDP,mas iteraciones
 using JuMP
 using GLPK
 using CSV

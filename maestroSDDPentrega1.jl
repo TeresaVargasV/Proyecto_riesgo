@@ -1,7 +1,6 @@
 #Problema con almacenamiento multiperiodo estocastico
 #Minimiza  costo de operacion
-#Resolución SDDP cargado
-#Modelo de entrega 1 pero con muestreo mayor cargado segun probabilidades
+#resolución SDDP,entrega 1
 using JuMP
 using GLPK
 using CSV
@@ -9,40 +8,37 @@ using DataFrames
 using Random
 using StatsBase
 
-# Utilizar funciones del archivo "esclavoSDDP.jl"
-include("EsclavoSDDP_Final.jl")
+# Utilizar funciones del archivo "esclavoSDDPentrega1.jl"
+include("esclavoSDDPentrega1.jl")
 
 #DEFINIR PERIODOS Y ESTADOS----------------------------------------
-num_periodos=24 #perido totales
+num_periodos=3 #perido totales
 periodos = 1:num_periodos
-num_real=6
+num_real=3
 realizaciones=1:num_real
 
 #DATOS DEMANDA----------------------------------------------------------
-demanda = [480 530 580 610 680 710 870 1040 1130 1040 1030 940 1050 1250 1310 1320 1220 1080 1060 1040 930 900 850 800] #Demanda Conocida 
+demanda = [80 20 80] # Demanda conocida
 
 #DATOS CENTRALES TERMICAS------------------------------------------------
 #Numero de centrales generadores
-num_generadores=5
+num_generadores=2
 generadores=1:num_generadores
 #Costo operacion
-#cg_vr=[40 100]
-cg_vr=[5 12 25 15 20]
+cg_vr=[40 100]
 
 #Limites tecnicos
-pg_max=[400 350 300 250 200]
-pg_min=[0 0 0 0 0]
-#I_realizaciones=[1 1;1 0; 0 1]
-I_realizaciones=[1 1 1 1 1;0 1 1 1 1;1 0 1 1 1; 1 1 0 1 1; 1 1 1 0 1; 1 1 1 1 0]
-prob=[0.5;0.1;0.1;0.1;0.1;0.1]
-#prob=[1-5/8760*2;5/8760;5/8760]
+pg_max=[50 50]
+pg_min=[0 0]
+I_realizaciones=[1 1;1 0; 0 1]
+prob=[1-5/8760*2;5/8760;5/8760]
 #DATOS BATERIA-----------------------------------------------------------------
 #Limites tecnicos
-pb_max=150
+pb_max=50
 pb_min=0
-e_max=150
+e_max=50
 e_min=0
-e_in=150 #estado de carga inicial
+e_in=50 #estado de carga inicial
 
 #Eficiencia
 eta_ch=0.9 #carga
@@ -95,10 +91,10 @@ end
 @objective(model, Min, sum(cg_vr[g]*pg[g] for g in generadores)+pb_d*cb_di+pb_c*cb_ch+ ll*VoLL+ alpha)
 
 #DEFINIR NUMERO DE ITERACIONES-----------------------------------------------
-num_iteraciones=100
+num_iteraciones=15
 iteraciones = 1:num_iteraciones
 # Muestreo
-num_muestreo=50
+num_muestreo=2
 muestreo=zeros(Int64,num_muestreo)
 
 #Guardar pendiente y coef_pos corte de benders
@@ -111,11 +107,10 @@ coef_corte_aux=zeros(num_real,num_muestreo,num_periodos)
 costo_presente_aux=zeros(num_periodos,num_muestreo,num_iteraciones)
 z_max=zeros(num_iteraciones)
 z_min=zeros(num_iteraciones)
-
 var_z=0
 converge=0
-items = [1, 2, 3, 4, 5, 6]
-
+ms1=0
+ms2=0
 for i = iteraciones
     optimize!(model)
     p=1
@@ -132,23 +127,34 @@ for i = iteraciones
 
     #Etapa forward
     for p in 2:num_periodos
-        for i = 1:length(muestreo)
-            global muestreo[i] = sample(items, Weights(prob))
+        global ms1=1
+        global ms2=1
+        while ms1==ms2
+            global ms1=rand((1,2,3))
+            global ms2=rand((1,2,3))
         end
+        muestreo[1]=ms1
+        muestreo[2]=ms2
+        #Resuelve el subproblema periodos posteriores muestreo 1---------------------------
+        coef_pos, pendiente, eb_final_sol, alpha_sol,pg_per_sol,pb_per_sol,ll_sol=esclavoSDDPentrega1(I_realizaciones[muestreo[1],:], eb_final_p[p-1,1,i], demanda[p],coef_cortes[p,:,:], pendiente_cortes[p,:,:], eb_final_p[p,:,:],num_iteraciones,num_muestreo)
 
-        for k = 1:length(muestreo)
-            #Resuelve el subproblema periodos posteriores muestreo 1---------------------------
-            coef_pos, pendiente, eb_final_sol, alpha_sol,pg_per_sol,pb_per_sol=EsclavoSDDP_Final(I_realizaciones[muestreo[k],:], eb_final_p[p-1,k,i], demanda[p],coef_cortes[p,:,:], pendiente_cortes[p,:,:], eb_final_p[p,:,:],num_iteraciones,num_muestreo)
-            #Guardar valor de la variable con acople temporal
-            eb_final_p[p,k,i]=eb_final_sol
-            costo_presente_aux[p,k,i]=coef_pos-alpha_sol
-        end
+        #Guardar valor de la variable con acople temporal
+        eb_final_p[p,1,i]=eb_final_sol
+        costo_presente_aux[p,1,i]=coef_pos-alpha_sol
+
+        #Resuelve el subproblema periodos posteriores muestreo 2---------------------------
+        coef_pos, pendiente, eb_final_sol, alpha_sol,pg_per_sol,pb_per_sol,ll_sol=esclavoSDDPentrega1(I_realizaciones[muestreo[2],:], eb_final_p[p-1,2,i], demanda[p],coef_cortes[p,:,:], pendiente_cortes[p,:,:], eb_final_p[p,:,:],num_iteraciones,num_muestreo)
+
+        #Guardar valor de la variable con acople temporal
+        eb_final_p[p,2,i]=eb_final_sol
+        costo_presente_aux[p,2,i]=coef_pos-alpha_sol
     end
 
-    #Ver convergencia segun varianza
+    #Ver convergencia
     z_max[i]=costo_presente_aux[1,1,i]+ (sum(costo_presente_aux[p,e,i] for p in 2:num_periodos, e in 1:num_muestreo))*1/num_muestreo
     global var_z=sqrt(1/(num_muestreo^2)*sum((z_max[i]-sum(costo_presente_aux[p,m,i] for p in 1:num_periodos))^2 for m in 1:num_muestreo))
-    if z_max[i]-2*var_z< z_min[i] && z_max[i]+2*var_z> z_min[i]
+    println(var_z)
+    if z_max[i] - z_min[i]<=10
         global converge=i
         break
     end
@@ -158,8 +164,7 @@ for i = iteraciones
         for m in 1:num_muestreo
             for e in realizaciones
                 #Resuelve el subproblema periodos posteriores---------------------------
-                #coef_pos, pendiente, eb_final_sol, alpha_sol, pg_per_sol,pb_per_sol,ll_sol=EsclavoSDDP_Final(I_realizaciones[e,:,:], eb_final_p[p-1,m,i], demanda[p],coef_cortes[p,:,:], pendiente_cortes[p,:,:], eb_final_p[p,:,:],num_iteraciones,num_muestreo)
-                coef_pos, pendiente, eb_final_sol, alpha_sol,pg_per_sol,pb_per_sol=EsclavoSDDP_Final(I_realizaciones[e,:,:], eb_final_p[p-1,m,i], demanda[p],coef_cortes[p,:,:], pendiente_cortes[p,:,:], eb_final_p[p,:,:],num_iteraciones,num_muestreo)
+                coef_pos, pendiente, eb_final_sol, alpha_sol,pg_per_sol,pb_per_sol,ll_sol=esclavoSDDPentrega1(I_realizaciones[e,:,:], eb_final_p[p-1,m,i], demanda[p],coef_cortes[p,:,:], pendiente_cortes[p,:,:], eb_final_p[p,:,:],num_iteraciones,num_muestreo)
                 pendiente_corte_aux[e,m,p-1]=pendiente
                 coef_corte_aux[e,m,p-1]=coef_pos
             end
@@ -199,80 +204,29 @@ println("Estado de carga al final del periodo: ", eb_final_m_sol)
 println("Perdida de carga: ", ll_m_sol)
 println("Funcion de costo futuro: ", alpha_m_sol)
 println(" ")
+#1 1 1,1 2 1, 1 3 1, 1 3 3
+Esc_Resueltos=[1 1 1;1 2 1; 1 3 3]
+Resultados_pg=zeros(3,num_periodos,num_generadores)
+Resultados_pb=zeros(3,num_periodos)
+Resultados_eb=zeros(3,num_periodos)
+Resultados_ll=zeros(3,num_periodos)
 
-
-#------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-#Muestreo aleatorio
-items = [1, 2, 3, 4, 5, 6]
-num_montecarlo=100
-estado=zeros(Int64,num_montecarlo,num_periodos)
-for j in 1:num_montecarlo
-        estado[j,1]=1
-        for i in 2:num_periodos
-                estado[j,i] = sample(items, Weights(prob))
-        end
-end
-
-Resultados_pg=zeros(num_montecarlo,num_periodos,num_generadores)
-Resultados_pb=zeros(num_montecarlo,num_periodos)
-Resultados_eb=zeros(num_montecarlo,num_periodos)
-Resultados_ll=zeros(num_montecarlo,num_periodos)
-
-for e in 1:num_montecarlo
+for e in 1:3
     Resultados_eb[e,1]=eb_final_m_sol
-    Resultados_pg[e,1,:]=pg_m_sol
-    Resultados_pb[e,1]=pb_m_sol
-    Resultados_ll[e,1]=ll_m_sol
 end
 
-#for e in 1:num_montecarlo, p in 2:num_periodos
-#        #coef_pos, pendiente, eb_final_sol, alpha_sol,pg_per_sol,pb_per_sol,ll_sol=esclavoSDDPv3(I_realizaciones[Esc_Resueltos[e,p],:], Resultados_eb[e,p-1], demanda[p],coef_cortes[p,:,:], pendiente_cortes[p,:,:], eb_final_p[p,:,:],num_iteraciones,num_muestreo)
-#        coef_pos, pendiente, eb_final_sol, alpha_sol,pg_per_sol,pb_per_sol,ll_per_sol=EsclavoSDDP_Final(I_realizaciones[estado[e,p],:], Resultados_eb[e,p-1], demanda[p],coef_cortes[p,:,:], pendiente_cortes[p,:,:], eb_final_p[p,:,:],num_iteraciones,num_muestreo)
-#        Resultados_pg[e,p,:]=pg_per_sol
-#        Resultados_pb[e,p]=pb_per_sol
-#        Resultados_eb[e,p]=eb_final_sol
-#        Resultados_ll[e,p]=ll_per_sol
-#end
-#for e in 1:num_montecarlo
-#    for p in 2:num_periodos
-#        println("Generacion generadores escenario ",e," periodo ",p," :", Resultados_pg[e,p,:])
-#        println("Generacion bateria escenario ",e," periodo ",p," :", Resultados_pb[e,p])
-#        println("Estado final de carga escenario ",e," periodo ",p," :", Resultados_eb[e,p])
-#    end
-#    println(" ")
-#end
-epsilon=0.0001
-LOLE=0
-#rama=zeros(Int,3)
-#for e in 1:9
-#for e in 1:num_montecarlo
- #   for p in 1:num_periodos #2:num_periodos
- #       if Resultados_ll[e,p]>epsilon
- #           #rama=estado[e,:]
-##           w=prob[rama[1]]*prob[rama[2]]*prob[rama[3]]*1
-#            global LOLE=LOLE+1
-#        end
-#    end
-#end
-
-for e in 1:num_montecarlo
-    rama = estado[e,:]
-    for p in 2:num_periodos
-        coef_pos, pendiente, eb_final_sol, alpha_sol,pg_per_sol,pb_per_sol,ll_per_sol=EsclavoSDDP_Final(I_realizaciones[estado[e,p],:], Resultados_eb[e,p-1], demanda[p],coef_cortes[p,:,:], pendiente_cortes[p,:,:], eb_final_p[p,:,:],num_iteraciones,num_muestreo)
+for e in 1:3, p in 2:num_periodos
+        coef_pos, pendiente, eb_final_sol, alpha_sol,pg_per_sol,pb_per_sol,ll_sol=esclavoSDDPentrega1(I_realizaciones[Esc_Resueltos[e,p],:], Resultados_eb[e,p-1], demanda[p],coef_cortes[p,:,:], pendiente_cortes[p,:,:], eb_final_p[p,:,:],num_iteraciones,num_muestreo)
         Resultados_pg[e,p,:]=pg_per_sol
         Resultados_pb[e,p]=pb_per_sol
         Resultados_eb[e,p]=eb_final_sol
-        Resultados_ll[e,p]=ll_per_sol
-    end
-    for p in 1:num_periodos
-        if Resultados_ll[e,p]>epsilon
-            global LOLE = LOLE + 1
-        end
-    end
+        Resultados_ll[e,p]=ll_sol
 end
-
-
-
-println("LOLE: ",LOLE/num_montecarlo)
+for e in 1:3
+    for p in 2:num_periodos
+        println("Generacion generadores escenario ",e," periodo ",p," :", Resultados_pg[e,p,:])
+        println("Generacion bateria escenario ",e," periodo ",p," :", Resultados_pb[e,p])
+        println("Estado final de carga escenario ",e," periodo ",p," :", Resultados_eb[e,p])
+    end
+    println(" ")
+end

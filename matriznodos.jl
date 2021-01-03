@@ -1,6 +1,7 @@
-#Problema con almacenamiento multiperiodo deterministico
+#Problema con almacenamiento multiperiodo estocastico
 #Minimiza  costo de operacion
-#resolución directa, formulación por nodos
+#Resolución directa, formulación por nodos
+#Definitiva
 using JuMP
 using GLPK
 using CSV
@@ -166,15 +167,7 @@ for n in 2:nodos_totales
     @constraint(model, eb_final[n] == eb_final[padre_numero[n]] - pb_d[n]/eta_di +pb_c[n]*eta_ch)
     @constraint(model, eb_final[padre_numero[n]] >=  pb_d[n]/eta_di - pb_c[n]*eta_ch)
 end
-#Restricción que la solucion de los hermanos sean iguales
-#for x in nodos, y in nodos
-#    if padre_numero[x]==padre_numero[y]
-#        @constraint(model, pg[x,1] == pg[y,1])
-#        @constraint(model, pg[x,2] == pg[y,2])
-#        @constraint(model, pb_d[x] == pb_d[y])
-#        @constraint(model, pb_c[x] == pb_c[y])
-#    end
-#end
+
 #Funcion objetivo minimo costo de operacion
 @objective(model, Min, sum(prob[n]*(sum(cg_vr[g]*pg[n,g] for g in generadores)+pb_d[n]*cb_di+pb_c[n]*cb_ch+ ll[n]*VoLL) for n in nodos))
 optimize!(model)

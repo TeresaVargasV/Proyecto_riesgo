@@ -1,6 +1,6 @@
-#Problema con almacenamiento multiperiodo deterministico
+#Problema con almacenamiento multiperiodoestocastico con SDDP
 #Minimiza  costo de operacion
-#resolución directa
+#Problema esclavo con un muestreo de 2, entrega 1
 using JuMP
 using GLPK
 using CSV
@@ -42,7 +42,7 @@ cb_di=5 #descarga
 
 #PERDIDA DE CARGA-----------------------------------------------
 VoLL=1200
-function esclavoSDDP(I_escenario, e_anterior, demanda, coef_cortes, pendiente_cortes, eb_result)
+function esclavoSDDPentrega1(I_escenario, e_anterior, demanda, coef_cortes, pendiente_cortes, eb_result,num_itera,num_muestreo)
     #DEFINIR EL MODELO ETAPA 1---------------------------------------------------
     model = Model(GLPK.Optimizer)
 
@@ -81,12 +81,14 @@ function esclavoSDDP(I_escenario, e_anterior, demanda, coef_cortes, pendiente_co
 
     #Restricciones balance de energia bateria
     @constraint(model, eb_final == eb_inicial - pb_d/eta_di +pb_c*eta_ch)
-    @constraint(model, eb_inicial >=  pb_d/eta_di - pb_c*eta_ch)
+    #@constraint(model, eb_inicial >=  pb_d/eta_di - pb_c*eta_ch)
 
     #Corte de Benders de la forma alpha[p-1]>=coef_pos_corte[p]+pendiente_corte[p]*(Eb-Eb_resut[p-1])
-    for i in 1:length(eb_result)
-        @constraint(model, alpha >= coef_cortes[i] + pendiente_cortes[i]*(eb_final - eb_result[i]))
+
+    for  m in 1:num_muestreo, i in 1:num_itera
+        @constraint(model, alpha >= coef_cortes[m,i] + pendiente_cortes[m,i]*(eb_final - eb_result[m,i]))
     end
+
 
     #Funcion objetivo minimo costo de operacion
     @objective(model, Min, sum(cg_vr[g]*pg[g] for g in generadores)+pb_d*cb_di+pb_c*cb_ch+ ll*VoLL+ alpha)
@@ -99,7 +101,8 @@ function esclavoSDDP(I_escenario, e_anterior, demanda, coef_cortes, pendiente_co
     pg_sol=value.(pg)
     pb_sol=value.(pb)
     alpha_sol=value.(alpha)
+    ll_sol=value.(ll)
 
     # devolver lo necesario para los cortes
-    return coef_pos, pendiente, eb_final_sol, alpha_sol,pg_sol,pb_sol
+    return coef_pos, pendiente, eb_final_sol, alpha_sol,pg_sol,pb_sol,ll_sol
 end
