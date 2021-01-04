@@ -204,3 +204,61 @@ println("Estado de carga al final del periodo: ", eb_final_m_sol)
 println("Perdida de carga: ", ll_m_sol)
 println("Funcion de costo futuro: ", alpha_m_sol)
 println(" ")
+
+#obtener resultados con num_montecarlo
+num_montecarlo=1000
+estado=zeros(Int64,num_montecarlo,num_periodos)
+for j in 1:num_montecarlo
+        estado[j,1]=1
+        for i in 2:num_periodos
+                estado[j,i] = sample(items, Weights(prob))
+        end
+end
+I=zeros(num_generadores,num_periodos)
+Resultados_pg=zeros(num_montecarlo,num_periodos,num_generadores)
+Resultados_pb=zeros(num_montecarlo,num_periodos)
+Resultados_eb=zeros(num_montecarlo,num_periodos)
+Resultados_ll=zeros(num_montecarlo,num_periodos)
+
+for e in 1:num_montecarlo
+    Resultados_pg[e,1,:]=pg_m_sol
+    Resultados_pb[e,1]=pb_m_sol
+    Resultados_eb[e,1]=eb_final_m_sol
+    Resultados_ll[e,1]=ll_m_sol
+end
+epsilon=0.0001
+LOLE=0
+for e in 1:num_montecarlo, p in 2:num_periodos
+        #rama= Esc_Resueltos[e,:]
+        rama= estado[e,p]
+        coef_pos, pendiente, eb_final_sol, alpha_sol,pg_per_sol,pb_per_sol,ll_sol=esclavoSDDPm2(I_realizaciones[rama,:], Resultados_eb[e,p-1], demanda[p],coef_cortes[p,:,:], pendiente_cortes[p,:,:], eb_final_p[p,:,:],num_iteraciones,num_muestreo)
+        Resultados_pg[e,p,:]=pg_per_sol
+        Resultados_pb[e,p]=pb_per_sol
+        Resultados_eb[e,p]=eb_final_sol
+        Resultados_ll[e,p]=ll_sol
+        if Resultados_ll[e,p]>epsilon
+                    global LOLE=LOLE+1
+                end
+end
+
+#guardar resultados
+casos = convert(DataFrame,estado)
+CSV.write("casosSDDP.csv", casos)
+resultados_ll= DataFrame([[Resultados_ll[:,i]...] for i in 1:size(Resultados_ll,2)], Symbol.(:Periodo, 1:num_periodos))
+CSV.write("ResultadosLLSDDP.csv", resultados_ll)
+
+resultados_pb= DataFrame([[Resultados_pb[:,i]...] for i in 1:size(Resultados_pb,2)], Symbol.(:Periodo, 1:num_periodos))
+CSV.write("ResultadosPBSDDP.csv", resultados_pb)
+
+resultados_pg1= DataFrame([[Resultados_pg[:,i,1]...] for i in 1:size(Resultados_pg,2)], Symbol.(:Periodo, 1:num_periodos))
+CSV.write("ResultadosPG1SDDP.csv", resultados_pg1)
+resultados_pg2= DataFrame([[Resultados_pg[:,i,2]...] for i in 1:size(Resultados_pg,2)], Symbol.(:Periodo, 1:num_periodos))
+CSV.write("ResultadosPG2SDDP.csv", resultados_pg2)
+resultados_pg3= DataFrame([[Resultados_pg[:,i,3]...] for i in 1:size(Resultados_pg,2)], Symbol.(:Periodo, 1:num_periodos))
+CSV.write("ResultadosPG3SDDP.csv", resultados_pg3)
+resultados_pg4= DataFrame([[Resultados_pg[:,i,4]...] for i in 1:size(Resultados_pg,2)], Symbol.(:Periodo, 1:num_periodos))
+CSV.write("ResultadosPG4SDDP.csv", resultados_pg4)
+resultados_pg5= DataFrame([[Resultados_pg[:,i,5]...] for i in 1:size(Resultados_pg,2)], Symbol.(:Periodo, 1:num_periodos))
+CSV.write("ResultadosPG5SDDP.csv", resultados_pg5)
+
+println("LOLE: ",LOLE/num_montecarlo)
