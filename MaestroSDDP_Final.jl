@@ -231,7 +231,7 @@ LOLE=0
 for e in 1:num_montecarlo, p in 2:num_periodos
         #rama= Esc_Resueltos[e,:]
         rama= estado[e,p]
-        coef_pos, pendiente, eb_final_sol, alpha_sol,pg_per_sol,pb_per_sol,ll_sol=esclavoSDDPm2(I_realizaciones[rama,:], Resultados_eb[e,p-1], demanda[p],coef_cortes[p,:,:], pendiente_cortes[p,:,:], eb_final_p[p,:,:],num_iteraciones,num_muestreo)
+        coef_pos, pendiente, eb_final_sol, alpha_sol,pg_per_sol,pb_per_sol,ll_sol=EsclavoSDDP_Final(I_realizaciones[rama,:], Resultados_eb[e,p-1], demanda[p],coef_cortes[p,:,:], pendiente_cortes[p,:,:], eb_final_p[p,:,:],num_iteraciones,num_muestreo)
         Resultados_pg[e,p,:]=pg_per_sol
         Resultados_pb[e,p]=pb_per_sol
         Resultados_eb[e,p]=eb_final_sol
@@ -242,7 +242,7 @@ for e in 1:num_montecarlo, p in 2:num_periodos
 end
 
 #guardar resultados
-casos = convert(DataFrame,estado)
+casos = DataFrame([[estado[:,i]...] for i in 1:size(estado,2)], Symbol.(:Periodo, 1:num_periodos))
 CSV.write("casosSDDP.csv", casos)
 resultados_ll= DataFrame([[Resultados_ll[:,i]...] for i in 1:size(Resultados_ll,2)], Symbol.(:Periodo, 1:num_periodos))
 CSV.write("ResultadosLLSDDP.csv", resultados_ll)
