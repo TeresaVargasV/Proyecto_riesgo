@@ -81,7 +81,7 @@ function EsclavoSDDP_Final(I_escenario, e_anterior, demanda, coef_cortes, pendie
 
     #Restricciones balance de energia bateria
     @constraint(model, eb_final == eb_inicial - pb_d/eta_di +pb_c*eta_ch)
-    @constraint(model, eb_inicial >=  pb_d/eta_di - pb_c*eta_ch)
+    #@constraint(model, eb_inicial >=  pb_d/eta_di - pb_c*eta_ch)
 
     #Corte de Benders de la forma alpha[p-1]>=coef_pos_corte[p]+pendiente_corte[p]*(Eb-Eb_resut[p-1])
 
