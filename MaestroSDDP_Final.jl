@@ -88,7 +88,7 @@ end
 
 #Restricciones balance de energia bateria
 @constraint(model, eb_final == e_in - pb_d/eta_di +pb_c*eta_ch)
-@constraint(model, e_in >=  pb_d/eta_di - pb_c*eta_ch)
+#@constraint(model, e_in >=  pb_d/eta_di - pb_c*eta_ch)
 
 #Funcion objetivo minimo costo de operacion
 @objective(model, Min, sum(cg_vr[g]*pg[g] for g in generadores)+pb_d*cb_di+pb_c*cb_ch+ ll*VoLL+ alpha)
@@ -97,7 +97,7 @@ end
 num_iteraciones=100
 iteraciones = 1:num_iteraciones
 # Muestreo
-num_muestreo=20
+num_muestreo=50
 #num_muestreo=4
 muestreo=zeros(Int64,num_muestreo)
 
